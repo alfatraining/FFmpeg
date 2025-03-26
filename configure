@@ -5915,8 +5915,12 @@ case $target_os in
         enable dos_paths
         ;;
     linux)
+        disable symver
         enable section_data_rel_ro
         enabled_any arm aarch64 && enable_weak linux_perf
+        SLIB_INSTALL_NAME='$(SLIBNAME)'
+        SLIB_INSTALL_LINKS=
+        SHFLAGS='-shared -Wl,-soname,$(SLIBNAME)'
         ;;
     irix*)
         target_os=irix
