@@ -965,7 +965,7 @@ yuv2ya16_X_c_template(SwsContext *c, const int16_t *lumFilter,
         int A = 0xffff;
 
         for (j = 0; j < lumFilterSize; j++)
-            Y += lumSrc[j][i] * lumFilter[j];
+            Y += lumSrc[j][i] * (unsigned)lumFilter[j];
 
         Y >>= 15;
         Y += (1<<3) + 0x8000;
@@ -974,7 +974,7 @@ yuv2ya16_X_c_template(SwsContext *c, const int16_t *lumFilter,
         if (hasAlpha) {
             A = -0x40000000 + (1<<14);
             for (j = 0; j < lumFilterSize; j++)
-                A += alpSrc[j][i] * lumFilter[j];
+                A += alpSrc[j][i] * (unsigned)lumFilter[j];
 
             A >>= 15;
             A += 0x8000;
@@ -2289,9 +2289,9 @@ yuv2gbrp_full_X_c(SwsContext *c, const int16_t *lumFilter,
         Y -= c->yuv2rgb_y_offset;
         Y *= c->yuv2rgb_y_coeff;
         Y += 1 << (SH-1);
-        R = Y + V * c->yuv2rgb_v2r_coeff;
-        G = Y + V * c->yuv2rgb_v2g_coeff + U * c->yuv2rgb_u2g_coeff;
-        B = Y +                            U * c->yuv2rgb_u2b_coeff;
+        R = Y + V * (unsigned)c->yuv2rgb_v2r_coeff;
+        G = Y + V * (unsigned)c->yuv2rgb_v2g_coeff + U * (unsigned)c->yuv2rgb_u2g_coeff;
+        B = Y +                                      U * (unsigned)c->yuv2rgb_u2b_coeff;
 
         if ((R | G | B) & 0xC0000000) {
             R = av_clip_uintp2(R, 30);

@@ -385,6 +385,12 @@ static int mediacodec_wrap_sw_audio_buffer(AVCodecContext *avctx,
         goto done;
     }
 
+    if (info->size % (sample_size * avctx->ch_layout.nb_channels)) {
+        av_log(avctx, AV_LOG_ERROR, "input is not a multiple of channels * sample_size\n");
+        ret = AVERROR(EINVAL);
+        goto done;
+    }
+
     frame->format = avctx->sample_fmt;
     frame->sample_rate = avctx->sample_rate;
     frame->nb_samples = info->size / (sample_size * avctx->ch_layout.nb_channels);
@@ -594,7 +600,8 @@ static int mediacodec_dec_parse_video_format(AVCodecContext *avctx, MediaCodecDe
     AMEDIAFORMAT_GET_INT32(s->crop_right,  "crop-right",  0);
 
     // Try "crop" for NDK
-    if (!(s->crop_right && s->crop_bottom) && s->use_ndk_codec)
+    // MediaTek SOC return some default value like Rect(0, 0, 318, 238)
+    if (!(s->crop_right && s->crop_bottom) && s->use_ndk_codec && !strstr(s->codec_name, ".mtk."))
         ff_AMediaFormat_getRect(s->format, "crop", &s->crop_left, &s->crop_top, &s->crop_right, &s->crop_bottom);
 
     if (s->crop_right && s->crop_bottom) {
